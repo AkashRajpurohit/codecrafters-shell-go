@@ -10,7 +10,7 @@ import (
 	"os"
 )
 
-var validCommands = []string{"exit"}
+var validCommands = []string{"exit", "echo"}
 
 func readCommand() {
 	fmt.Fprint(os.Stdout, "$ ")
@@ -45,6 +45,11 @@ func readCommand() {
 
 				os.Exit(exitCode)
 			}
+
+			if command == "echo" {
+				fmt.Println(strings.Join(arguments, " "))
+			}
+
 			return
 		}
 	}
