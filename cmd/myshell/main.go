@@ -9,8 +9,7 @@ import (
 
 var validCommands = []string{}
 
-func main() {
-	// Uncomment this block to pass the first stage
+func readCommand() {
 	fmt.Fprint(os.Stdout, "$ ")
 
 	// Wait for user input
@@ -31,4 +30,10 @@ func main() {
 	}
 
 	fmt.Printf("%s: command not found\n", command)
+}
+
+func main() {
+	for {
+		readCommand()
+	}
 }
