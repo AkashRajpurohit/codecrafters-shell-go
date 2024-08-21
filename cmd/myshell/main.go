@@ -10,8 +10,6 @@ import (
 	"os"
 )
 
-var validCommands = []string{"exit", "echo"}
-
 func readCommand() {
 	fmt.Fprint(os.Stdout, "$ ")
 
@@ -23,7 +21,7 @@ func readCommand() {
 	}
 
 	// Remove newline character
-	commandString = strings.TrimSuffix(commandString, "\n")
+	commandString = strings.TrimSpace(commandString)
 
 	// Split the command string into command and arguments
 	commandParts := strings.Fields(commandString)
@@ -34,27 +32,22 @@ func readCommand() {
 	command := commandParts[0]
 	arguments := commandParts[1:]
 
-	for _, validCommand := range validCommands {
-		if command == validCommand {
-			if command == "exit" {
-				exitCode, err := strconv.Atoi(arguments[0])
-				if err != nil {
-					fmt.Println("Invalid exit code")
-					return
-				}
-
-				os.Exit(exitCode)
-			}
-
-			if command == "echo" {
-				fmt.Println(strings.Join(arguments, " "))
-			}
-
+	switch command {
+	case "exit":
+		exitCode, err := strconv.Atoi(arguments[0])
+		if err != nil {
+			fmt.Fprint(os.Stdout, "Invalid exit code")
 			return
 		}
-	}
 
-	fmt.Printf("%s: command not found\n", command)
+		os.Exit(exitCode)
+
+	case "echo":
+		fmt.Fprintf(os.Stdout, "%s\n", strings.Join(arguments, " "))
+
+	default:
+		fmt.Fprintf(os.Stdout, "%s: command not found\n", command)
+	}
 }
 
 func main() {
