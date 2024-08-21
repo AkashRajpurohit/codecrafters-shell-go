@@ -10,6 +10,8 @@ import (
 	"os"
 )
 
+var shellBuiltins = []string{"exit", "echo", "type"}
+
 func readCommand() {
 	fmt.Fprint(os.Stdout, "$ ")
 
@@ -44,6 +46,28 @@ func readCommand() {
 
 	case "echo":
 		fmt.Fprintf(os.Stdout, "%s\n", strings.Join(arguments, " "))
+
+	case "type":
+		if len(arguments) == 0 {
+			fmt.Fprint(os.Stdout, "type: missing argument\n")
+			return
+		}
+
+		command := arguments[0]
+		isShellBuiltin := false
+
+		for _, shellBuiltin := range shellBuiltins {
+			if command == shellBuiltin {
+				isShellBuiltin = true
+				break
+			}
+		}
+
+		if isShellBuiltin {
+			fmt.Fprintf(os.Stdout, "%s is a shell builtin\n", command)
+		} else {
+			fmt.Fprintf(os.Stdout, "%s: not found\n", command)
+		}
 
 	default:
 		fmt.Fprintf(os.Stdout, "%s: command not found\n", command)
