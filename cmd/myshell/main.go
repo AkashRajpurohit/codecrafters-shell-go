@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"os/exec"
 	"strconv"
 	"strings"
 
@@ -31,6 +32,7 @@ func readCommand() {
 		return
 	}
 
+	paths := os.Getenv("PATH")
 	command := commandParts[0]
 	arguments := commandParts[1:]
 
@@ -54,7 +56,6 @@ func readCommand() {
 		}
 
 		command := arguments[0]
-		paths := os.Getenv("PATH")
 
 		for _, builtin := range shellBuiltins {
 			if command == builtin {
@@ -63,7 +64,6 @@ func readCommand() {
 			}
 		}
 
-		// search for the command in the PATH
 		for _, path := range strings.Split(paths, ":") {
 			if _, err := os.Stat(path + "/" + command); err == nil {
 				fmt.Fprintf(os.Stdout, "%s is %s/%s\n", command, path, command)
@@ -73,6 +73,21 @@ func readCommand() {
 
 		fmt.Fprintf(os.Stdout, "%s: not found\n", command)
 	default:
+		for _, path := range strings.Split(paths, ":") {
+			if _, err := os.Stat(path + "/" + command); err == nil {
+				// Execute the command
+				output, err := exec.Command(path+"/"+command, arguments...).CombinedOutput()
+
+				if err != nil {
+					fmt.Fprintf(os.Stdout, "%s\n", err)
+					return
+				}
+
+				fmt.Fprintf(os.Stdout, "%s", output)
+				return
+			}
+		}
+
 		fmt.Fprintf(os.Stdout, "%s: command not found\n", command)
 	}
 }
