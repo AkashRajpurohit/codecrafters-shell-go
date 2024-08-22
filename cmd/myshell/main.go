@@ -11,7 +11,7 @@ import (
 	"os"
 )
 
-var shellBuiltins = []string{"exit", "echo", "type", "pwd"}
+var shellBuiltins = []string{"exit", "echo", "type", "pwd", "cd"}
 
 func readCommand() {
 	fmt.Fprint(os.Stdout, "$ ")
@@ -57,6 +57,17 @@ func readCommand() {
 		}
 
 		fmt.Fprintf(os.Stdout, "%s\n", wd)
+
+	case "cd":
+		if len(arguments) == 0 {
+			fmt.Fprint(os.Stdout, "cd: missing argument\n")
+			return
+		}
+
+		err := os.Chdir(arguments[0])
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "cd: %s: No such file or directory\n", arguments[0])
+		}
 
 	case "type":
 		if len(arguments) == 0 {
