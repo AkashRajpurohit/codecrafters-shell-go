@@ -10,8 +10,6 @@ import (
 	"os"
 )
 
-var shellBuiltins = []string{"exit", "echo", "type"}
-
 func readCommand() {
 	fmt.Fprint(os.Stdout, "$ ")
 
@@ -54,21 +52,17 @@ func readCommand() {
 		}
 
 		command := arguments[0]
-		isShellBuiltin := false
+		paths := os.Getenv("PATH")
 
-		for _, shellBuiltin := range shellBuiltins {
-			if command == shellBuiltin {
-				isShellBuiltin = true
-				break
+		// search for the command in the PATH
+		for _, path := range strings.Split(paths, ":") {
+			if _, err := os.Stat(path + "/" + command); err == nil {
+				fmt.Fprintf(os.Stdout, "%s is %s/%s\n", command, path, command)
+				return
 			}
 		}
 
-		if isShellBuiltin {
-			fmt.Fprintf(os.Stdout, "%s is a shell builtin\n", command)
-		} else {
-			fmt.Fprintf(os.Stdout, "%s: not found\n", command)
-		}
-
+		fmt.Fprintf(os.Stdout, "%s: not found\n", command)
 	default:
 		fmt.Fprintf(os.Stdout, "%s: command not found\n", command)
 	}
