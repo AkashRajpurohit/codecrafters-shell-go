@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"os/exec"
+	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -64,7 +65,15 @@ func readCommand() {
 			return
 		}
 
-		err := os.Chdir(arguments[0])
+		hasHomePrefix := strings.HasPrefix(arguments[0], "~")
+		dirPath := arguments[0]
+
+		if hasHomePrefix {
+			homePath := os.Getenv("HOME")
+			dirPath = filepath.Join(homePath, strings.TrimPrefix(dirPath, "~"))
+		}
+
+		err := os.Chdir(dirPath)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "cd: %s: No such file or directory\n", arguments[0])
 		}
