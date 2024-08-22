@@ -10,6 +10,8 @@ import (
 	"os"
 )
 
+var shellBuiltins = []string{"exit", "echo", "type"}
+
 func readCommand() {
 	fmt.Fprint(os.Stdout, "$ ")
 
@@ -53,6 +55,13 @@ func readCommand() {
 
 		command := arguments[0]
 		paths := os.Getenv("PATH")
+
+		for _, builtin := range shellBuiltins {
+			if command == builtin {
+				fmt.Fprintf(os.Stdout, "%s is a shell builtin\n", command)
+				return
+			}
+		}
 
 		// search for the command in the PATH
 		for _, path := range strings.Split(paths, ":") {
