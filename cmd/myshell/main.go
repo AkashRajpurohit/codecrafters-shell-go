@@ -11,7 +11,7 @@ import (
 	"os"
 )
 
-var shellBuiltins = []string{"exit", "echo", "type"}
+var shellBuiltins = []string{"exit", "echo", "type", "pwd"}
 
 func readCommand() {
 	fmt.Fprint(os.Stdout, "$ ")
@@ -49,6 +49,15 @@ func readCommand() {
 	case "echo":
 		fmt.Fprintf(os.Stdout, "%s\n", strings.Join(arguments, " "))
 
+	case "pwd":
+		wd, err := os.Getwd()
+		if err != nil {
+			fmt.Fprint(os.Stdout, "Error getting working directory\n")
+			return
+		}
+
+		fmt.Fprintf(os.Stdout, "%s\n", wd)
+
 	case "type":
 		if len(arguments) == 0 {
 			fmt.Fprint(os.Stdout, "type: missing argument\n")
@@ -75,7 +84,6 @@ func readCommand() {
 	default:
 		for _, path := range strings.Split(paths, ":") {
 			if _, err := os.Stat(path + "/" + command); err == nil {
-				// Execute the command
 				output, err := exec.Command(path+"/"+command, arguments...).CombinedOutput()
 
 				if err != nil {
